@@ -16,7 +16,7 @@ public class DataBase {
     private MessageDigest hash;
     private static final String URL = "jdbc:postgresql://localhost:5432/studs"; // тут будет наш локальный постгресс
     private static final String LOGIN = "s336760";
-    private static final String PASS = "snm543";
+    private static final String PASS = "******";
     private Connection connection;
     private Statement statement;
 
