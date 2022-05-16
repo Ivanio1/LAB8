@@ -1,0 +1,4 @@
+.body{
+    -fx-background-image: url("phone.jpg");
+    opacity: 0.4;
+}
