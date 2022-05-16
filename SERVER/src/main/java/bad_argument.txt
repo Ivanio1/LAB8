@@ -1,0 +1,12 @@
+help
+add
+LAB
+a
+4
+100
+PETR
+RED
+USA
+show
+info
+man add
