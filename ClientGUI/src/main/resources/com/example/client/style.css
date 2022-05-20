@@ -1,4 +1,12 @@
-.body{
+.body {
     -fx-background-image: url("phone.jpg");
     opacity: 0.4;
+}
+.body1 {
+    -fx-background-image: url("phone1.jpg");
+    opacity: 0.4;
+}
+.button {
+    -fx-background-image: url("9woc.gif");
+    -fx-background-radius: 300;
 }
