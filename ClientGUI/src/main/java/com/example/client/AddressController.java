@@ -90,7 +90,7 @@ public class AddressController extends Observable implements Initializable {
                            try {
                                loader.load();
                            } catch (IOException e) {
-                               e.printStackTrace();
+                               //e.printStackTrace();
                            }
 
                            Parent root = loader.getRoot();

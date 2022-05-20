@@ -4,10 +4,12 @@ package com.example.client;
 import app.collection.*;
 import connection.Network;
 import io.Message;
+import io.RandomColor;
 import io.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -20,8 +22,12 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
+
+import static com.example.client.App_main_Controller.*;
+import static com.example.client.RunClient.login;
 
 public class AddController {
     @FXML
@@ -48,7 +54,7 @@ public class AddController {
 
     @FXML
     private URL location;
-
+    public App_main_Controller app=new App_main_Controller();
 
     @FXML
     private Button add;
@@ -74,43 +80,68 @@ public class AddController {
         nationality.setItems(_n);
 
         add.setOnAction(event -> {
-            if (Integer.parseInt(x.getText())<0 ||Integer.parseInt(x.getText())<0) {
-                try {
-                    String _personBirthday = personBirthday.getText().trim();
-                    LabWork work = new LabWork(
-                            name.getText(),
-                            new Coordinates(Long.parseLong(x.getText()),
-                                    Long.parseLong(y.getText())), Double.parseDouble(minimalPoint.getText()), String.valueOf(Date.from(Instant.now())), Difficulty.StringNameToObj(String.valueOf(difficulty.getValue())), new Person(PersonName.getText(), _personBirthday, Color.StringNameToObj(String.valueOf(eyeColor.getValue())), Country.StringNameToObj(String.valueOf(nationality.getValue()))));
+            try {
+                if (!(Integer.parseInt(x.getText()) < 0) && !(Integer.parseInt(y.getText()) < 0) &&!(Integer.parseInt(x.getText()) > 626)&&!(Integer.parseInt(y.getText()) > 172) && isDate(personBirthday.getText().trim())) {
                     try {
-                        Network network = new Network(RunClient.ip_adress, RunClient.port);
-                        Message message = new Message(Commands.ADD.getCommandName(), work,
-                                new User(RunClient.login, RunClient.pass));
-                        //System.out.println(message+""+message.getLabWork()+message.getArgs());
-                        network.write(message);
-                        String outServer = network.read().toString();
+                        String _personBirthday = personBirthday.getText().trim();
+                        LabWork work = new LabWork(
+                                name.getText(),
+                                new Coordinates(Long.parseLong(x.getText()),
+                                        Long.parseLong(y.getText())), Double.parseDouble(minimalPoint.getText()), String.valueOf(Date.from(Instant.now())), Difficulty.StringNameToObj(String.valueOf(difficulty.getValue())), new Person(PersonName.getText(), _personBirthday, Color.StringNameToObj(String.valueOf(eyeColor.getValue())), Country.StringNameToObj(String.valueOf(nationality.getValue()))));
+                        try {
+                            Network network = new Network(RunClient.ip_adress, RunClient.port);
+                            Message message = new Message(Commands.ADD.getCommandName(), work,
+                                    new User(RunClient.login, RunClient.pass));
+                            //System.out.println(message+""+message.getLabWork()+message.getArgs());
+                            network.write(message);
+                            FLAG=false;
+                            String outServer = network.read().toString();
 
-
-                        add.getScene().getWindow().hide();
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
+                           // StaticsetINFO();
+                            add.getScene().getWindow().hide();
+                        } catch (IOException | ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (NumberFormatException | DateTimeParseException e) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setHeaderText("Error");
+                        alert.setContentText(resources.getString("error.format"));
+                        alert.showAndWait().ifPresent(rs -> {
+                        });
                     }
-                } catch (NumberFormatException | DateTimeParseException e) {
+                } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setHeaderText("Error");
-                    alert.setContentText("Error Format");
+                    alert.setContentText(resources.getString("error.format"));
                     alert.showAndWait().ifPresent(rs -> {
                     });
                 }
-            }else  {
+            } catch (NullPointerException | NumberFormatException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setHeaderText("Error");
-                alert.setContentText("Error Format");
+                alert.setContentText(resources.getString("error.format"));
                 alert.showAndWait().ifPresent(rs -> {
                 });
             }
         });
+    }
+
+    boolean isDate(String line) {
+        boolean flag=true;
+        try {
+            String[] ar = line.split(" ");
+            String[] ar1 = ar[0].split("-");
+            String[] ar2 = ar[1].split(":");
+            if (Integer.parseInt(ar1[2]) < 0 || Integer.parseInt(ar1[2]) > 31 || Integer.parseInt(ar1[1]) < 0 || Integer.parseInt(ar1[1]) > 12 || Integer.parseInt(ar2[0]) < 0 || Integer.parseInt(ar2[0]) > 23 || Integer.parseInt(ar2[1]) < 0 || Integer.parseInt(ar2[1]) > 60) {
+                flag= false;
+            } else flag= true;
+        }catch (ArrayIndexOutOfBoundsException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Error");
+            alert.setContentText(resources.getString("error.format"));
+            alert.showAndWait().ifPresent(rs -> {
+            });
+        }
+        return flag;
     }
 }

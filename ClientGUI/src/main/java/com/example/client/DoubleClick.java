@@ -9,10 +9,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ResourceBundle;
+
+import static com.example.client.App_main_Controller.FLAG;
 
 public class DoubleClick {
     @FXML
@@ -37,7 +40,8 @@ public class DoubleClick {
             Parent root = loader.getRoot();
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
-            stage.show();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
         });
         DELETE.setOnAction(event -> {
             Network network = null;
@@ -47,6 +51,7 @@ public class DoubleClick {
                 Message message = new Message("remove", String.valueOf(RunClient.labworkTable.getId()), user);
                 network.write(message);
                 String outServer = network.read().toString();
+    FLAG=false;
                 if (outServer.equals("[EMPTY]")) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setHeaderText("Error");
@@ -63,6 +68,8 @@ public class DoubleClick {
             } catch (IOException | ClassNotFoundException e) {
                 // e.printStackTrace();
             }
+            DELETE.getScene().getWindow().hide();
         });
+
     }
 }

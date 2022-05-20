@@ -11,6 +11,8 @@ import javafx.scene.control.TextArea;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
+import static com.example.client.App_main_Controller.FLAG;
+
 public class ScriptScene {
     @FXML
     public Button GO;
@@ -32,10 +34,15 @@ public class ScriptScene {
                     Message message = new Message("execute_script", TEXT.getText(), user);
                     network.write(message);
                     String outServer = network.read().toString();
+                    FLAG=false;
                     //System.out.println(outServer);
                     Alert alert1 = new Alert(Alert.AlertType.INFORMATION);
-                    alert1.setHeaderText("Info");
-                    alert1.setContentText(outServer);
+                    TextArea area = new TextArea(outServer);
+                    area.setWrapText(true);
+                    area.setEditable(false);
+
+                    alert1.getDialogPane().setContent(area);
+                    alert1.setResizable(true);
                     alert1.showAndWait().ifPresent(rs -> {
                     });
                     GO.getScene().getWindow().hide();
@@ -47,7 +54,7 @@ public class ScriptScene {
                 Alert alert1 = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
                 alert1.setTitle("Error");
                 alert1.setHeaderText("Null");
-                alert1.setContentText("Null Argument");
+                alert1.setContentText(resources.getString("NullArgument"));
                 alert1.showAndWait().ifPresent(rs -> {
                 });
             }

@@ -10,6 +10,7 @@ import connection.Network;
 import io.Message;
 import io.RandomColor;
 import io.User;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -28,6 +29,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import request.Commands;
 
@@ -35,7 +37,11 @@ import static com.example.client.RunClient.login;
 
 
 public class App_main_Controller {
+    @FXML
+    public Label INFO;
+    @FXML
     public Button EXIT;
+    @FXML
     public TextField LT;
     @FXML
     public Button SHOW;
@@ -84,7 +90,7 @@ public class App_main_Controller {
 
     @FXML
     private ResourceBundle resources;
-
+    private static ResourceBundle resources1 = AddressController.resourceBundle;
     @FXML
     private URL location;
     @FXML
@@ -114,9 +120,10 @@ public class App_main_Controller {
 
     @FXML
     private Button Add_button;
-    ArrayList<LabWork> arrayList;
+    public ArrayList<LabWork> arrayList;
     public static int FINAL_ID;
     public static Map<String, String> colors = new HashMap<>();
+    public static boolean FLAG = false;
 
     void draw_coord_sys(GraphicsContext gc) {
         double w = canvas.getWidth();
@@ -152,14 +159,112 @@ public class App_main_Controller {
         } else return false;
     }
 
+    public void setINFO() {
+        try {
+            Network network2 = new Network(RunClient.ip_adress, RunClient.port);
+            User user2 = new User(login, RunClient.pass);
+            Message message2 = new Message(Commands.INFO.getCommandName(), user2);
+            network2.write(message2);
+            String outServer2 = network2.read().toString();
+            if (outServer2.equals("[EMPTY]")) {
+                INFO.setText(resources.getString("error.empty"));
+            } else {
+                String[] s = outServer2.split(",");
+                INFO.setText(resources.getString("col.type") + ": " + s[1].replace("]", "") + "\n" + resources.getString("col.size") + ": " + s[0].replace("[", ""));
+            }
+        } catch (Exception e) {
+            // e.printStackTrace();
+            System.out.println("Server disabled");
+            System.exit(0);
+        }
+    }
+
+
     @FXML
     void initialize() throws IOException, ClassNotFoundException {
         this.resources = AddressController.resourceBundle;
         USER.setText(login);
         SHOW.setBackground(new Background(new BackgroundFill(Color.LIGHTGREEN, null, null)));
+        Network network2 = new Network(RunClient.ip_adress, RunClient.port);
+        User user2 = new User(login, RunClient.pass);
+        Message message2 = new Message(Commands.INFO.getCommandName(), user2);
+        network2.write(message2);
+        String outServer2 = network2.read().toString();
+        if (outServer2.equals("[EMPTY]")) {
+            INFO.setText(resources.getString("error.empty"));
+        } else {
+            String[] s = outServer2.split(",");
+            INFO.setText(resources.getString("col.type") + ": " + s[1].replace("]", "") + "\n" + resources.getString("col.size") + ": " + s[0].replace("[", ""));
+        }
+
         //рисуем оси
         //GraphicsContext gc = canvas.getGraphicsContext2D();
         draw_coord_sys(canvas.getGraphicsContext2D());
+        try {
+            Network network = new Network(RunClient.ip_adress, RunClient.port);
+            User user = new User(login, RunClient.pass);
+            Message message = new Message(Commands.SHOW.getCommandName(), user);
+            network.write(message);
+
+            arrayList = (ArrayList) network.read();
+            collectionSize = arrayList.size();
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            draw_coord_sys(gc);
+            for (LabWork sh : arrayList) {
+                if (!colors.containsKey(sh.getOwner())) {
+                    colors.put(sh.getOwner(), RandomColor.getRandomColor());
+                }
+
+                draw_work(sh, canvas, canvas.getGraphicsContext2D());
+            }
+            userColorSq.setFill(Color.valueOf(colors.get(login)));
+            getClientObjects(arrayList);
+            //}
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Server disabled");
+            System.exit(0);
+        }
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                        if (!FLAG) {
+                            try {
+                                Network network = new Network(RunClient.ip_adress, RunClient.port);
+                                User user = new User(login, RunClient.pass);
+                                Message message = new Message(Commands.SHOW.getCommandName(), user);
+                                network.write(message);
+
+                                arrayList = (ArrayList) network.read();
+                                collectionSize = arrayList.size();
+                                GraphicsContext gc = canvas.getGraphicsContext2D();
+                                gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                                draw_coord_sys(gc);
+                                for (LabWork sh : arrayList) {
+                                    if (!colors.containsKey(sh.getOwner())) {
+                                        colors.put(sh.getOwner(), RandomColor.getRandomColor());
+                                    }
+                                    draw_work(sh, canvas, canvas.getGraphicsContext2D());
+                                }
+                                userColorSq.setFill(Color.valueOf(colors.get(login)));
+                                getClientObjects(arrayList);
+                                setINFO();
+                                //}
+                            } catch (Exception e) {
+                                //e.printStackTrace();
+                                System.out.println("Server disabled");
+                                System.exit(0);
+                            }
+                        }
+                    }
+
+                });
+            }
+        };
+        RunClient.timer.schedule(task, 0L, 1000L);
 
         SHOW.setOnAction(event -> {
             try {
@@ -191,15 +296,25 @@ public class App_main_Controller {
 
         });
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+            //System.out.println(event.getX() + " "+event.getY());
             for (LabWork e : arrayList) {
-                if (isInOval((int) (e.getCoordinates().getX() + 30), (int) (e.getCoordinates().getY() + 30), (int) event.getX(), (int) (276 - event.getY()))) {
+                if (isInOval((int) (e.getCoordinates().getX() + 30), (int) (e.getCoordinates().getY() + 30), (int) event.getX(), (int) (canvas.getHeight() - event.getY()))) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setHeaderText("Info");
                     alert.setContentText(e.toString());
                     alert.showAndWait().ifPresent(rs -> {
                     });
                     if (e.getOwner().equals(login)) {
-                        RunClient.Canvas_id=e.getId();
+                        RunClient.Canvas_id = e.getId();
+                        RunClient.Canvas_x = e.getCoordinates().getX();
+                        RunClient.Canvas_y = e.getCoordinates().getY();
+                        RunClient.Canvas_name = e.getName();
+                        RunClient.Canvas_pername = e.getAuthor().getName();
+                        RunClient.Canvas_date = e.getAuthor().getBirthday();
+                        RunClient.Canvas_point = e.getMinimalPoint();
+                        RunClient.Canvas_diff = String.valueOf(e.getDifficulty());
+                        RunClient.Canvas_color = String.valueOf(e.getAuthor().getEyeColor());
+                        RunClient.Canvas_country = String.valueOf(e.getAuthor().getNationality());
                         FXMLLoader loader = new FXMLLoader();
                         loader.setLocation(getClass().getResource("DoubleClickCanvas.fxml"));
                         loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -226,17 +341,30 @@ public class App_main_Controller {
         });
         EXIT.setOnAction(event ->
 
-        { //Двойной клик по объекту в таблице
+        {
             System.exit(0);
         });
         objectTable.setOnMouseClicked(event ->
-
         { //Двойной клик по объекту в таблице
             try {
+                FLAG=true;
                 if (event.getClickCount() == 2) {
                     if (objectTable.getSelectionModel().getSelectedItem().getOwner().equals(login)) {
                         RunClient.labworkTable = objectTable.getSelectionModel().getSelectedItem();
-                        //System.out.println(RunClient.labworkTable);
+                        for (LabWork e : arrayList) {
+                            if (e.getOwner().equals(login)) {
+                                RunClient.Canvas_id = e.getId();
+                                RunClient.Canvas_x = e.getCoordinates().getX();
+                                RunClient.Canvas_y = e.getCoordinates().getY();
+                                RunClient.Canvas_name = e.getName();
+                                RunClient.Canvas_pername = e.getAuthor().getName();
+                                RunClient.Canvas_date = e.getAuthor().getBirthday();
+                                RunClient.Canvas_point = e.getMinimalPoint();
+                                RunClient.Canvas_diff = String.valueOf(e.getDifficulty());
+                                RunClient.Canvas_color = String.valueOf(e.getAuthor().getEyeColor());
+                                RunClient.Canvas_country = String.valueOf(e.getAuthor().getNationality());
+                            }
+                        }
                         FXMLLoader loader = new FXMLLoader();
                         loader.setLocation(getClass().getResource("DoubleClick.fxml"));
                         loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -273,7 +401,6 @@ public class App_main_Controller {
             });
         });
         Add_button.setOnAction(event ->
-
         {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("addScene.fxml"));
@@ -286,8 +413,12 @@ public class App_main_Controller {
             Parent root = loader.getRoot();
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
-            stage.show();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
         });
+
+
         add_if_max.setOnAction(event ->
 
         {
@@ -302,7 +433,8 @@ public class App_main_Controller {
             Parent root = loader.getRoot();
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
-            stage.show();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
         });
         SCRIPT.setOnAction(event ->
 
@@ -318,23 +450,62 @@ public class App_main_Controller {
             Parent root = loader.getRoot();
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
-            stage.show();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
         });
         Update_id.setOnAction(event ->
-
         {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("updateScene.fxml"));
-            loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
-            try {
-                loader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
+            for (LabWork e : arrayList) {
+                if (e.getOwner().equals(login)) {
+                    RunClient.Canvas_id = e.getId();
+                    RunClient.Canvas_x = e.getCoordinates().getX();
+                    RunClient.Canvas_y = e.getCoordinates().getY();
+                    RunClient.Canvas_name = e.getName();
+                    RunClient.Canvas_pername = e.getAuthor().getName();
+                    RunClient.Canvas_date = e.getAuthor().getBirthday();
+                    RunClient.Canvas_point = e.getMinimalPoint();
+                    RunClient.Canvas_diff = String.valueOf(e.getDifficulty());
+                    RunClient.Canvas_color = String.valueOf(e.getAuthor().getEyeColor());
+                    RunClient.Canvas_country = String.valueOf(e.getAuthor().getNationality());
+
+                    FXMLLoader loader = new FXMLLoader();
+                    loader.setLocation(getClass().getResource("updateScene.fxml"));
+                    loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
+                    try {
+                        loader.load();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                    Parent root = loader.getRoot();
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.initModality(Modality.APPLICATION_MODAL);
+                    stage.showAndWait();
+                    try {
+                        Network network1 = new Network(RunClient.ip_adress, RunClient.port);
+                        User user1 = new User(login, RunClient.pass);
+                        Message message1 = new Message(Commands.SHOW.getCommandName(), user1);
+                        network1.write(message1);
+
+                        arrayList = (ArrayList) network1.read();
+                        collectionSize = arrayList.size();
+                        GraphicsContext gc = canvas.getGraphicsContext2D();
+                        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                        draw_coord_sys(gc);
+                        for (LabWork sh : arrayList) {
+                            if (!colors.containsKey(sh.getOwner())) {
+                                colors.put(sh.getOwner(), RandomColor.getRandomColor());
+                            }
+
+                            draw_work(sh, canvas, canvas.getGraphicsContext2D());
+                        }
+                        userColorSq.setFill(Color.valueOf(colors.get(login)));
+                        getClientObjects(arrayList);
+                    } catch (IOException | ClassNotFoundException e1) {
+                        //Все под контролем
+                    }
+                }
             }
-            Parent root = loader.getRoot();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.show();
         });
         info.setOnAction(event ->
 
@@ -403,6 +574,8 @@ public class App_main_Controller {
                 Message message = new Message("remove_first", user);
                 network.write(message);
                 String outServer = network.read().toString();
+                FLAG=false;
+                setINFO();
                 if (outServer.equals("[EMPTY]")) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setHeaderText("Error");
@@ -429,21 +602,41 @@ public class App_main_Controller {
                     alert.showAndWait().ifPresent(rs -> {
                     });
                 }
+                Network network1 = new Network(RunClient.ip_adress, RunClient.port);
+                User user1 = new User(login, RunClient.pass);
+                Message message1 = new Message(Commands.SHOW.getCommandName(), user1);
+                network1.write(message1);
+
+                arrayList = (ArrayList) network1.read();
+                collectionSize = arrayList.size();
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+                gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                draw_coord_sys(gc);
+                for (LabWork sh : arrayList) {
+                    if (!colors.containsKey(sh.getOwner())) {
+                        colors.put(sh.getOwner(), RandomColor.getRandomColor());
+                    }
+
+                    draw_work(sh, canvas, canvas.getGraphicsContext2D());
+                }
+                userColorSq.setFill(Color.valueOf(colors.get(login)));
+                getClientObjects(arrayList);
             } catch (IOException | ClassNotFoundException e) {
                 // e.printStackTrace();
             }
         });
         remove_at.setOnAction(event ->
-
         {
             Network network = null;
             if (!ARGFIELD.getText().equals("")) {
                 try {
                     network = new Network(RunClient.ip_adress, RunClient.port);
                     User user = new User(RunClient.login, RunClient.pass);
-                    Message message = new Message("remove_at", ARGFIELD.getText(), user);
+                    Message message = new Message("remove_at", String.valueOf(Integer.parseInt(ARGFIELD.getText()) - 1), user);
                     network.write(message);
                     String outServer = network.read().toString();
+                    setINFO();
+                    FLAG=false;
                     if (outServer.equals("[EMPTY]")) {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setHeaderText("Error");
@@ -469,6 +662,25 @@ public class App_main_Controller {
                         alert.showAndWait().ifPresent(rs -> {
                         });
                     }
+                    Network network1 = new Network(RunClient.ip_adress, RunClient.port);
+                    User user1 = new User(login, RunClient.pass);
+                    Message message1 = new Message(Commands.SHOW.getCommandName(), user1);
+                    network1.write(message1);
+
+                    arrayList = (ArrayList) network1.read();
+                    collectionSize = arrayList.size();
+                    GraphicsContext gc = canvas.getGraphicsContext2D();
+                    gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    draw_coord_sys(gc);
+                    for (LabWork sh : arrayList) {
+                        if (!colors.containsKey(sh.getOwner())) {
+                            colors.put(sh.getOwner(), RandomColor.getRandomColor());
+                        }
+
+                        draw_work(sh, canvas, canvas.getGraphicsContext2D());
+                    }
+                    userColorSq.setFill(Color.valueOf(colors.get(login)));
+                    getClientObjects(arrayList);
                 } catch (IOException | ClassNotFoundException e) {
                     // e.printStackTrace();
                 }
@@ -476,10 +688,11 @@ public class App_main_Controller {
                 Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
                 alert.setTitle("Error");
                 alert.setHeaderText("Null");
-                alert.setContentText("Null Argument");
+                alert.setContentText(resources.getString("NullArgument"));
                 alert.showAndWait().ifPresent(rs -> {
                 });
             }
+
         });
         count_by_difficulty.setOnAction(event ->
 
@@ -513,7 +726,7 @@ public class App_main_Controller {
                 Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
                 alert.setTitle("Error");
                 alert.setHeaderText("Null");
-                alert.setContentText("Null Argument");
+                alert.setContentText(resources.getString("NullArgument"));
                 alert.showAndWait().ifPresent(rs -> {
                 });
             }
@@ -543,11 +756,7 @@ public class App_main_Controller {
                         alert.showAndWait().ifPresent(rs -> {
                         });
                     } else {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setHeaderText("Info");
-                        alert.setContentText(outServer);
-                        alert.showAndWait().ifPresent(rs -> {
-                        });
+                        LT.setText(String.valueOf(Double.valueOf(ARGFIELD.getText())));
                     }
                 } catch (IOException | ClassNotFoundException e) {
                     // e.printStackTrace();
@@ -556,7 +765,7 @@ public class App_main_Controller {
                 Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
                 alert.setTitle("Error");
                 alert.setHeaderText("Null");
-                alert.setContentText("Null Argument");
+                alert.setContentText(resources.getString("NullArgument"));
                 alert.showAndWait().ifPresent(rs -> {
                 });
             }
@@ -589,6 +798,7 @@ public class App_main_Controller {
         FilteredList<LabworkTable> filteredList = new FilteredList<>(cities, b -> true);
         LT.textProperty().addListener((observableValue, old, newval) -> {
             filteredList.setPredicate(city -> {
+                FLAG=true;
                 if (newval.isEmpty() || newval.isBlank() || newval == null) {
                     return true;
                 }
@@ -605,7 +815,7 @@ public class App_main_Controller {
                     return true;
                 } else if (city.getCreationDate().toLowerCase().indexOf(search) > -1) {
                     return true;
-                } else if (city.getPersonBirth().toLowerCase().indexOf(search) > -1) {
+                } else if (city.getPersonBirth() != null && city.getPersonBirth().toLowerCase().indexOf(search) > -1) {
                     return true;
                 } else if (city.getPersonName().toLowerCase().indexOf(search) > -1) {
                     return true;

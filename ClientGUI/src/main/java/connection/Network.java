@@ -1,8 +1,12 @@
 package connection;
 
+import com.example.client.AddressController;
+import javafx.scene.control.Alert;
+
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.util.ResourceBundle;
 
 public class Network {
 
@@ -11,6 +15,7 @@ public class Network {
     private Socket socket;
 
     private static boolean connection;
+    private ResourceBundle resourceBundle= AddressController.resourceBundle;
 
 
     public Network(String address, int port) throws IOException {
@@ -18,10 +23,15 @@ public class Network {
        try {
            socket = new Socket(address,port);
            this.connection = true;
-       }catch (ConnectException e){
+       }catch (ConnectException|IllegalArgumentException e){
           // e.printStackTrace();
-           System.out.println("Server disabled");
-           System.exit(0);
+           Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
+           alert.setTitle("Error");
+           alert.setHeaderText(resourceBundle.getString("address.null.title"));
+           alert.setContentText(resourceBundle.getString("address.null"));
+           alert.showAndWait().ifPresent(rs -> {
+           });
+            System.exit(0);
        }
 
     }

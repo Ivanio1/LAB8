@@ -18,16 +18,15 @@ import io.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import request.Commands;
+
+import static com.example.client.App_main_Controller.FLAG;
 
 
 public class UpdateController {
     @FXML
-    public  TextField ID ;
+    public Label ID;
     @FXML
     public TextField minimalPoint;
     @FXML
@@ -59,6 +58,17 @@ public class UpdateController {
 
     @FXML
     void initialize() {
+        ID.setText(String.valueOf(RunClient.Canvas_id));
+        name.setText(RunClient.Canvas_name);
+        personBirthday.setText(RunClient.Canvas_date);
+        PersonName.setText(RunClient.Canvas_pername);
+        x.setText(String.valueOf(RunClient.Canvas_x));
+        y.setText(String.valueOf(RunClient.Canvas_y));
+        minimalPoint.setText(String.valueOf(RunClient.Canvas_point));
+        difficulty.setValue(RunClient.Canvas_diff);
+        eyeColor.setValue(RunClient.Canvas_color);
+        nationality.setValue(RunClient.Canvas_country);
+
         ObservableList<String> _difficulty = FXCollections.observableArrayList(
                 Difficulty.EASY.getName(),
                 Difficulty.HARD.getName(),
@@ -78,55 +88,73 @@ public class UpdateController {
         nationality.setItems(_n);
 
         add.setOnAction(event -> {
-            if (Integer.parseInt(x.getText())<0 ||Integer.parseInt(x.getText())<0) {
             try {
-                String _personBirthday = personBirthday.getText().trim();
+                if (!(Integer.parseInt(x.getText()) < 0) && !(Integer.parseInt(y.getText()) < 0) && !(Integer.parseInt(x.getText()) > 626) && !(Integer.parseInt(y.getText()) > 172) && isDate(personBirthday.getText().trim())) {
+                    try {
+                        String _personBirthday = personBirthday.getText().trim();
 
-                LabWork work = new LabWork(Integer.parseInt(ID.getText()),RunClient.login,
-                        name.getText(),
-                        new Coordinates(Long.parseLong(x.getText()),
-                                Long.parseLong(y.getText())), Double.parseDouble(minimalPoint.getText()),String.valueOf(Date.from(Instant.now())),Difficulty.StringNameToObj(String.valueOf(difficulty.getValue())),new Person(PersonName.getText(),String.valueOf(_personBirthday),Color.StringNameToObj(String.valueOf(eyeColor.getValue())),Country.StringNameToObj(String.valueOf(nationality.getValue()))));
+                        LabWork work = new LabWork(Integer.parseInt(ID.getText()), RunClient.login,
+                                name.getText(),
+                                new Coordinates(Long.parseLong(x.getText()),
+                                        Long.parseLong(y.getText())), Double.parseDouble(minimalPoint.getText()), String.valueOf(Date.from(Instant.now())), Difficulty.StringNameToObj(String.valueOf(difficulty.getValue())), new Person(PersonName.getText(), String.valueOf(_personBirthday), Color.StringNameToObj(String.valueOf(eyeColor.getValue())), Country.StringNameToObj(String.valueOf(nationality.getValue()))));
 
-                try {
-                    Network network = new Network(RunClient.ip_adress, RunClient.port);
-                    Message message = new Message(Commands.UPDATEID.getCommandName(), work,
-                            new User(RunClient.login, RunClient.pass));
-                    network.write(message);
-                    String outServer = network.read().toString();
-                    //System.out.println(outServer);
-                    if(outServer.equals("[NOT]")){
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        try {
+                            Network network = new Network(RunClient.ip_adress, RunClient.port);
+                            Message message = new Message(Commands.UPDATEID.getCommandName(), work,
+                                    new User(RunClient.login, RunClient.pass));
+                            network.write(message);
+                            String outServer = network.read().toString();
+                            FLAG=false;
+                            //System.out.println(outServer);
+                            if (outServer.equals("[NOT]")) {
+                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setHeaderText("Error");
+                                alert.setContentText(resources.getString("error.objectavailable"));
+                                alert.showAndWait().ifPresent(rs -> {
+                                });
+                            }
+                            if (outServer.equals("[EMPTY]")) {
+                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setHeaderText("Error");
+                                alert.setContentText(resources.getString("error.empty"));
+                                alert.showAndWait().ifPresent(rs -> {
+                                });
+                            }
+                            add.getScene().getWindow().hide();
+
+                        } catch (IOException | ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (NumberFormatException | DateTimeParseException e) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setHeaderText("Error");
-                        alert.setContentText(resources.getString("error.objectavailable"));
+                        alert.setContentText(resources.getString("error.format"));
                         alert.showAndWait().ifPresent(rs -> {
                         });
                     }
-                    if(outServer.equals("[EMPTY]")){
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setHeaderText("Error");
-                        alert.setContentText(resources.getString("error.empty"));
-                        alert.showAndWait().ifPresent(rs -> {
-                        });
-                    }
-                    add.getScene().getWindow().hide();
-
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText("Error");
+                    alert.setContentText(resources.getString("error.format"));
+                    alert.showAndWait().ifPresent(rs -> {
+                    });
                 }
-            } catch (NumberFormatException | DateTimeParseException e) {
+            } catch (NullPointerException | NumberFormatException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setHeaderText("Error");
-                alert.setContentText("Error Format");
+                alert.setContentText(resources.getString("error.format"));
                 alert.showAndWait().ifPresent(rs -> {
                 });
             }
-        }else  {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("Error");
-            alert.setContentText("Error Format");
-            alert.showAndWait().ifPresent(rs -> {
-            });
-        }
         });
+    }
+
+    boolean isDate(String line) {
+        String[] ar = line.split(" ");
+        String[] ar1 = ar[0].split("-");
+        String[] ar2 = ar[1].split(":");
+        if (Integer.parseInt(ar1[2]) < 0 || Integer.parseInt(ar1[2]) > 31 || Integer.parseInt(ar1[1]) < 0 || Integer.parseInt(ar1[1]) > 12 || Integer.parseInt(ar2[0]) < 0 || Integer.parseInt(ar2[0]) > 23 || Integer.parseInt(ar2[1]) < 0 || Integer.parseInt(ar2[1]) > 60) {
+            return false;
+        } else return true;
     }
 }

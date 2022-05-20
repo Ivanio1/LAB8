@@ -31,7 +31,6 @@ public class AuthController {
     private URL location;
 
 
-
     @FXML
     private TextField LoginAuth;
 
@@ -43,11 +42,12 @@ public class AuthController {
 
     @FXML
     private Button Register;
-public static String user_color;
+    public static String user_color;
+
     @FXML
     void initialize() {
-this.resources=AddressController.resourceBundle;
-        Register.setOnAction(event->{
+        this.resources = AddressController.resourceBundle;
+        Register.setOnAction(event -> {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("registerScene.fxml")); //загрузка экрана регистрации
             loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -63,25 +63,25 @@ this.resources=AddressController.resourceBundle;
             stage.show();
         });
 
-        Auth.setOnAction(event->{
+        Auth.setOnAction(event -> {
             String login = LoginAuth.getText().trim();
             String pass = PswrdAuth.getText().trim();
-            String color=RandomColor.getRandomColor();
-            user_color=color;
-            App_main_Controller.colors.put(login,user_color);
-            if(!login.isEmpty()) {
-                if (!pass.isEmpty() ) {
+            String color = RandomColor.getRandomColor();
+            user_color = color;
+            App_main_Controller.colors.put(login, user_color);
+            if (!login.isEmpty()) {
+                if (!pass.isEmpty()) {
                     try {
                         Network network = new Network(RunClient.ip_adress, RunClient.port);
 
-                        User user = new User(login,pass);
+                        User user = new User(login, pass);
 
-                        Message message = new Message("AUTHORIZATION",user,false);
+                        Message message = new Message("AUTHORIZATION", user, false);
 
                         network.write(message);
                         String outServer = network.read().toString();
 
-                        if(outServer.equals(RunClient.AUTHORIZATION_ISSUCCESS)){
+                        if (outServer.equals(RunClient.AUTHORIZATION_ISSUCCESS)) {
                             RunClient.login = login;
                             RunClient.pass = pass;
                             Auth.getScene().getWindow().hide();
@@ -99,7 +99,7 @@ this.resources=AddressController.resourceBundle;
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                        }else{
+                        } else {
                             LoginAuth.setText("");
                             PswrdAuth.setText("");
                             Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
@@ -111,8 +111,7 @@ this.resources=AddressController.resourceBundle;
                         }
 
 
-
-                    }catch (IOException | ClassNotFoundException e) {
+                    } catch (IOException | ClassNotFoundException e) {
                         LoginAuth.setText("");
                         PswrdAuth.setText("");
                         Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
@@ -122,7 +121,7 @@ this.resources=AddressController.resourceBundle;
                         alert.showAndWait().ifPresent(rs -> {
                         });
                     }
-                }else{
+                } else {
                     LoginAuth.setText("");
                     PswrdAuth.setText("");
                     Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
@@ -132,7 +131,7 @@ this.resources=AddressController.resourceBundle;
                     alert.showAndWait().ifPresent(rs -> {
                     });
                 }
-            }else{
+            } else {
                 LoginAuth.setText("");
                 PswrdAuth.setText("");
                 Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла

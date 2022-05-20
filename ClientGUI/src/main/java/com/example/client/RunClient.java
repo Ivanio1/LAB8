@@ -30,6 +30,17 @@ public class RunClient extends Application implements Observer {
     private AnchorPane currentRoot;
     public static Locale locale;
     public static long Canvas_id;
+    public static long Canvas_x;
+    public static long Canvas_y;
+    public static double Canvas_point;
+    public static String Canvas_name;
+    public static String Canvas_pername;
+    public static String Canvas_date;
+    public static String Canvas_diff;
+    public static String Canvas_country;
+    public static String Canvas_color;
+
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
