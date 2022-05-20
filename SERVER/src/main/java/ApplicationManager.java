@@ -56,7 +56,7 @@ public class ApplicationManager extends Thread implements MessageErrors {
         SocketChannel channel = serverSocketChannel.accept(); // так как точно известно, что ожидает коннект - тут мы без остановки
         channel.configureBlocking(false); // отключаем режим блокирования
         //SelectionKey keys = sc.register(selector, SelectionKey.OP_READ);
-        System.out.println("Канал зарегистрирован на чтение");
+        // System.out.println("Канал зарегистрирован на чтение");
 
         GetFromClient fromClient = new GetFromClient(channel, invoker, dataBase);
         Thread thread = new Thread(fromClient, "Read");
@@ -88,6 +88,7 @@ public class ApplicationManager extends Thread implements MessageErrors {
                     if (keyCount > 0) {
                         // есть сообщения на коннект/прием/отправку.
                         Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+
                         // перебираю этих ребят
                         while (iterator.hasNext()) {
                             SelectionKey sk = iterator.next();

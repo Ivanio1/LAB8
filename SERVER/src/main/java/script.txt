@@ -1,0 +1,12 @@
+help
+add
+LAB
+400
+89
+100
+VERY_HARD
+PHIL
+RED
+USA
+show
+info
