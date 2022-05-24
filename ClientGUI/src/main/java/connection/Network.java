@@ -31,7 +31,7 @@ public class Network {
            alert.setContentText(resourceBundle.getString("address.null"));
            alert.showAndWait().ifPresent(rs -> {
            });
-            System.exit(0);
+           // System.exit(0);
        }
 
     }
