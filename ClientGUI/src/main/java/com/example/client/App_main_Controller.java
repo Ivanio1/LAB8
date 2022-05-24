@@ -222,7 +222,7 @@ public class App_main_Controller {
             getClientObjects(arrayList);
             //}
         } catch (Exception e) {
-            e.printStackTrace();
+          //Flag  e.printStackTrace();
             System.out.println("Server disabled");
             System.exit(0);
         }
@@ -401,7 +401,7 @@ public class App_main_Controller {
             });
         });
         Add_button.setOnAction(event ->
-        {
+        {FLAG=false;
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("addScene.fxml"));
             loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -421,7 +421,7 @@ public class App_main_Controller {
 
         add_if_max.setOnAction(event ->
 
-        {
+        {FLAG=false;
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("add_if_maxScene.fxml"));
             loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -438,7 +438,7 @@ public class App_main_Controller {
         });
         SCRIPT.setOnAction(event ->
 
-        {
+        {FLAG=false;
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("ScriptScene.fxml"));
             loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -454,7 +454,7 @@ public class App_main_Controller {
             stage.showAndWait();
         });
         Update_id.setOnAction(event ->
-        {
+        {FLAG=false;
             for (LabWork e : arrayList) {
                 if (e.getOwner().equals(login)) {
                     RunClient.Canvas_id = e.getId();
@@ -565,7 +565,6 @@ public class App_main_Controller {
             }
         });
         remove_first.setOnAction(event ->
-
         {
             Network network = null;
             try {
@@ -606,7 +605,6 @@ public class App_main_Controller {
                 User user1 = new User(login, RunClient.pass);
                 Message message1 = new Message(Commands.SHOW.getCommandName(), user1);
                 network1.write(message1);
-
                 arrayList = (ArrayList) network1.read();
                 collectionSize = arrayList.size();
                 GraphicsContext gc = canvas.getGraphicsContext2D();

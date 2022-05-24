@@ -51,7 +51,7 @@ public class DoubleClick {
                 Message message = new Message("remove", String.valueOf(RunClient.labworkTable.getId()), user);
                 network.write(message);
                 String outServer = network.read().toString();
-    FLAG=false;
+                FLAG=false;
                 if (outServer.equals("[EMPTY]")) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setHeaderText("Error");

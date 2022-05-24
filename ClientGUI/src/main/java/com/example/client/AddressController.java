@@ -33,7 +33,6 @@ public class AddressController extends Observable implements Initializable {
     public Text host;
 
 
-
     @FXML
     private URL location;
 
@@ -59,6 +58,7 @@ public class AddressController extends Observable implements Initializable {
 
     private void initListeners() {
         // слушает изменение языка
+
         languages.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -71,57 +71,59 @@ public class AddressController extends Observable implements Initializable {
         });
         Input.setOnAction(event -> {
 
-               String addressConnect = IP_adress.getText().trim();
-               String portConnect = Port.getText().trim();
-               if (!addressConnect.isEmpty() && addressConnect.length() == addressConnect.replaceAll("[^0-9.]", "").length() || addressConnect.toLowerCase().equals("localhost")) {//здесь должна быть провекра на правильность формата ввода
-                   if (!portConnect.isEmpty() && portConnect.length() == portConnect.replaceAll("[^0-9]", "").length()) {
-                       try {
-                           if (!addressConnect.equals("localhost"))
-                               addressConnect = addressConnect.replaceAll("[^0-9.]", "");
-                           Network network = new Network(addressConnect.toLowerCase(), Integer.parseInt(portConnect));
-                           //установка соединения
-                           RunClient.ip_adress = addressConnect;
-                           RunClient.port = Integer.parseInt(portConnect);
+            String addressConnect = IP_adress.getText().trim();
+            String portConnect = Port.getText().trim();
+            if (!addressConnect.isEmpty() && addressConnect.length() == addressConnect.replaceAll("[^0-9.]", "").length() || addressConnect.toLowerCase().equals("localhost")) {//здесь должна быть провекра на правильность формата ввода
+                if (!portConnect.isEmpty() && portConnect.length() == portConnect.replaceAll("[^0-9]", "").length()) {
+                    try {
+                        if (!addressConnect.equals("localhost"))
+                            addressConnect = addressConnect.replaceAll("[^0-9.]", "");
+                        Network network = new Network(addressConnect.toLowerCase(), Integer.parseInt(portConnect));
+                        //установка соединения
+                        if (Integer.parseInt(portConnect) == 33676) {
+                            RunClient.ip_adress = addressConnect;
+                            RunClient.port = Integer.parseInt(portConnect);
 
-                           Input.getScene().getWindow().hide();
-                           FXMLLoader loader = new FXMLLoader();
-                           loader.setLocation(getClass().getResource("authScene.fxml")); //загрузка экрана входа
+                            Input.getScene().getWindow().hide();
+                            FXMLLoader loader = new FXMLLoader();
+                            loader.setLocation(getClass().getResource("authScene.fxml")); //загрузка экрана входа
                             loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
-                           try {
-                               loader.load();
-                           } catch (IOException e) {
-                               //e.printStackTrace();
-                           }
+                            try {
+                                loader.load();
+                            } catch (IOException e) {
+                                //e.printStackTrace();
+                            }
 
-                           Parent root = loader.getRoot();
-                           Stage stage = new Stage();
-                           stage.setTitle(resourceBundle.getString("auth.title"));
-                           stage.setScene(new Scene(root));
-                           stage.show();
-                       } catch (IOException e) {
-                           Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
-                           alert.setTitle("Error");
-                           alert.setHeaderText(resourceBundle.getString("address.connection.error.title"));
-                           alert.setContentText(resourceBundle.getString("address.connection.error"));
-                           alert.showAndWait().ifPresent(rs -> {
-                           });
-                       }
-                   } else {
-                       Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
-                       alert.setTitle("Error");
-                       alert.setHeaderText(resourceBundle.getString("address.null.title"));
-                       alert.setContentText(resourceBundle.getString("address.null"));
-                       alert.showAndWait().ifPresent(rs -> {
-                       });
-                   }
-               } else {
-                   Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
-                   alert.setTitle("Error");
-                   alert.setHeaderText(resourceBundle.getString("address.null.title"));
-                   alert.setContentText(resourceBundle.getString("address.null"));
-                   alert.showAndWait().ifPresent(rs -> {
-                   });
-               }
+                            Parent root = loader.getRoot();
+                            Stage stage = new Stage();
+                            stage.setTitle(resourceBundle.getString("auth.title"));
+                            stage.setScene(new Scene(root));
+                            stage.show();
+                        }
+                    } catch (IOException e) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
+                        alert.setTitle("Error");
+                        alert.setHeaderText(resourceBundle.getString("address.connection.error.title"));
+                        alert.setContentText(resourceBundle.getString("address.connection.error"));
+                        alert.showAndWait().ifPresent(rs -> {
+                        });
+                    }
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
+                    alert.setTitle("Error");
+                    alert.setHeaderText(resourceBundle.getString("address.null.title"));
+                    alert.setContentText(resourceBundle.getString("address.null"));
+                    alert.showAndWait().ifPresent(rs -> {
+                    });
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
+                alert.setTitle("Error");
+                alert.setHeaderText(resourceBundle.getString("address.null.title"));
+                alert.setContentText(resourceBundle.getString("address.null"));
+                alert.showAndWait().ifPresent(rs -> {
+                });
+            }
 
         });
     }

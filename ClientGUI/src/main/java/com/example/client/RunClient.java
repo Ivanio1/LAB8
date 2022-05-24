@@ -63,7 +63,7 @@ public class RunClient extends Application implements Observer {
             addressController.addObserver(this);
             primaryStage.setTitle(fxmlLoader.getResources().getString("address.title"));
         } catch (IOException e) {
-            e.printStackTrace();
+           // e.printStackTrace();
         }
         return node;
     }

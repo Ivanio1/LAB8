@@ -94,9 +94,8 @@ public class AddController {
                                     new User(RunClient.login, RunClient.pass));
                             //System.out.println(message+""+message.getLabWork()+message.getArgs());
                             network.write(message);
-                            FLAG=false;
                             String outServer = network.read().toString();
-
+                            FLAG=false;
                            // StaticsetINFO();
                             add.getScene().getWindow().hide();
                         } catch (IOException | ClassNotFoundException e) {

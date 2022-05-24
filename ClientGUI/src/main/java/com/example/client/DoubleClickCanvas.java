@@ -51,7 +51,7 @@ public class DoubleClickCanvas {
                 Message message = new Message("remove", String.valueOf(RunClient.Canvas_id), user);
                 network.write(message);
                 String outServer = network.read().toString();
-                FLAG=false;
+                FLAG = false;
                 if (outServer.equals("[EMPTY]")) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setHeaderText("Error");
@@ -69,6 +69,10 @@ public class DoubleClickCanvas {
                 // e.printStackTrace();
             }
         });
-        DELETE.getScene().getWindow().hide();
+        try {
+            DELETE.getScene().getWindow().hide();
+        }catch(NullPointerException e){
+            ///
+        }
     }
 }
