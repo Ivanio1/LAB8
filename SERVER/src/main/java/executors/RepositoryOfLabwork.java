@@ -478,7 +478,7 @@ public class RepositoryOfLabwork {
     public LabWork script_add(String line) throws ParseException {
         String login=dataBase.getOwner();
         String[] args = line.split(",");
-        if (isNumeric(args[1]) && isNumeric(args[2]) && isDouble(args[3])) {
+        if (isNumeric(args[1])&&Integer.parseInt(args[1])>0 &&Integer.parseInt(args[1])<626 &&Integer.parseInt(args[2])<172 &&Integer.parseInt(args[1])>0 && isNumeric(args[2]) && isDouble(args[3])) {
             LabWork W = null;
             try {
                 int id = dataBase.getSQLId();

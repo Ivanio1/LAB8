@@ -1,7 +1,7 @@
 help
 add
 LAB
-400
+100
 89
 100
 VERY_HARD

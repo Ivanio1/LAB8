@@ -210,6 +210,24 @@ public class Receiver implements MessageErrors {
         }
     }
 
+    public void exit() {
+        Runnable save = () -> {
+            System.out.println("Введите exit для завершения работы сервера.");
+            try {
+                Scanner scanner=new Scanner(System.in);
+               String userCommand = scanner.nextLine();
+                String[] finalUserCommand = userCommand.trim().split(" ", 2);
+                if(finalUserCommand[0].equals("exit")){
+                    System.out.println("Завершение программы");
+                    System.exit(0);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        };
+        new Thread(save).start();
+
+    }
 
     /**
      * Метод обработки команды скрипт
@@ -302,7 +320,7 @@ public class Receiver implements MessageErrors {
                                 break;
                             case "exit":
                                 s += "\nПроцесс завершён." + ";\n ";
-                                System.exit(0);
+                                //System.exit(0);
                                 break;
                             case "max_by_author":
                                 s += repositoryOfwork.script_max_by_author() + ";\n ";

@@ -72,7 +72,7 @@ public class GetFromClient implements Runnable {
                         Thread commandTransaction = new Thread(transaction, "Transaction");
                         commandTransaction.start();
                     }
-                }catch (SocketException e){
+                }catch (IOException e){
                     System.out.println("Client disabled");
                     i--;
                     if (i == 0) {
