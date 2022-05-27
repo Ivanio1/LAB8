@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -18,7 +19,6 @@
    <ComboBox fx:id="eyeColor" layoutX="327.0" layoutY="212.0" prefHeight="26.0" prefWidth="171.0" promptText="%eye" />
    <ComboBox fx:id="nationality" layoutX="327.0" layoutY="250.0" prefHeight="26.0" prefWidth="171.0" promptText="%country" />
    <Button fx:id="add" layoutX="211.0" layoutY="501.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="156.0" text="%create" />
-   <TextField fx:id="personBirthday" layoutX="338.0" layoutY="333.0" promptText="%date" />
    <Label layoutX="379.0" layoutY="172.0" text="%owner">
       <font>
          <Font name="System Italic" size="16.0" />
@@ -29,5 +29,6 @@
          <Font name="System Font" size="31.0" />
       </font>
    </Label>
+      <DatePicker fx:id="personBirthday" layoutX="327.0" layoutY="344.0" />
 </children>
 </AnchorPane>

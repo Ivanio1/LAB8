@@ -3,6 +3,7 @@ package com.example.client;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -44,7 +45,7 @@ public class CanvasUpdate {
     @FXML
     public ComboBox nationality;
     @FXML
-    public TextField personBirthday;
+    public DatePicker personBirthday;
 
     @FXML
     private ResourceBundle resources;
@@ -60,7 +61,9 @@ public class CanvasUpdate {
     void initialize() {
         ID.setText(String.valueOf(RunClient.Canvas_id));
         name.setText(RunClient.Canvas_name);
-        personBirthday.setText(RunClient.Canvas_date);
+        if(RunClient.Canvas_date!=null){
+            personBirthday.setValue(LocalDate.parse(RunClient.Canvas_date));
+        }
         PersonName.setText(RunClient.Canvas_pername);
         x.setText(String.valueOf(RunClient.Canvas_x));
         y.setText(String.valueOf(RunClient.Canvas_y));
@@ -89,9 +92,9 @@ public class CanvasUpdate {
 
         add.setOnAction(event -> {
             try {
-                if (!(Integer.parseInt(x.getText()) < 0) && !(Integer.parseInt(y.getText()) < 0) &&!(Integer.parseInt(x.getText()) > 626)&&!(Integer.parseInt(y.getText()) > 172) && isDate(personBirthday.getText().trim())) {
+                if (!(Integer.parseInt(x.getText()) < 0) && !(Integer.parseInt(y.getText()) < 0) &&!(Integer.parseInt(x.getText()) > 626)&&!(Integer.parseInt(y.getText()) > 172)) {
                     try {
-                        String _personBirthday = personBirthday.getText().trim();
+                        String _personBirthday = personBirthday.getValue().toString().trim();
 
                         LabWork work = new LabWork(Integer.parseInt(ID.getText()), RunClient.login,
                                 name.getText(),

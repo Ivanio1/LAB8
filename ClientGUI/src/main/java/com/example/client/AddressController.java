@@ -76,11 +76,11 @@ public class AddressController extends Observable implements Initializable {
             if (!addressConnect.isEmpty() && addressConnect.length() == addressConnect.replaceAll("[^0-9.]", "").length() || addressConnect.toLowerCase().equals("localhost")) {//здесь должна быть провекра на правильность формата ввода
                 if (!portConnect.isEmpty() && portConnect.length() == portConnect.replaceAll("[^0-9]", "").length()) {
                     try {
-                        if (!addressConnect.equals("localhost"))
-                            addressConnect = addressConnect.replaceAll("[^0-9.]", "");
+//                        if (!addressConnect.equals("localhost"))
+//                            addressConnect = addressConnect.replaceAll("[^0-9.]", "");
                         Network network = new Network(addressConnect.toLowerCase(), Integer.parseInt(portConnect));
                         //установка соединения
-                        if (Integer.parseInt(portConnect) == 33676) {
+
                             RunClient.ip_adress = addressConnect;
                             RunClient.port = Integer.parseInt(portConnect);
 
@@ -99,7 +99,7 @@ public class AddressController extends Observable implements Initializable {
                             stage.setTitle(resourceBundle.getString("auth.title"));
                             stage.setScene(new Scene(root));
                             stage.show();
-                        }
+
                     } catch (IOException e) {
                         Alert alert = new Alert(Alert.AlertType.ERROR); //если проверка не прошла
                         alert.setTitle("Error");

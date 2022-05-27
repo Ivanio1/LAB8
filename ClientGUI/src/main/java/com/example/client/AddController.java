@@ -10,10 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import request.Commands;
 
 import java.io.IOException;
@@ -47,7 +44,7 @@ public class AddController {
     @FXML
     public ComboBox nationality;
     @FXML
-    public TextField personBirthday;
+    public DatePicker personBirthday;
 
     @FXML
     private ResourceBundle resources;
@@ -81,9 +78,9 @@ public class AddController {
 
         add.setOnAction(event -> {
             try {
-                if (!(Integer.parseInt(x.getText()) < 0) && !(Integer.parseInt(y.getText()) < 0) &&!(Integer.parseInt(x.getText()) > 626)&&!(Integer.parseInt(y.getText()) > 172) && isDate(personBirthday.getText().trim())) {
+                if (!(Integer.parseInt(x.getText()) < 0) && !(Integer.parseInt(y.getText()) < 0) &&!(Integer.parseInt(x.getText()) > 626)&&!(Integer.parseInt(y.getText()) > 172)) {
                     try {
-                        String _personBirthday = personBirthday.getText().trim();
+                        String _personBirthday = personBirthday.getValue().toString().trim();
                         LabWork work = new LabWork(
                                 name.getText(),
                                 new Coordinates(Long.parseLong(x.getText()),
@@ -96,7 +93,6 @@ public class AddController {
                             network.write(message);
                             String outServer = network.read().toString();
                             FLAG=false;
-                           // StaticsetINFO();
                             add.getScene().getWindow().hide();
                         } catch (IOException | ClassNotFoundException e) {
                             e.printStackTrace();

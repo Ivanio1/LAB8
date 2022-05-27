@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.DatePicker?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="557.0" prefWidth="599.0" styleClass="body" stylesheets="@style.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client.UpdateController">
 <children>
    <Label fx:id="ID" layoutX="72.0" layoutY="85.0" />
@@ -19,7 +20,7 @@
    <ComboBox fx:id="eyeColor" layoutX="327.0" layoutY="212.0" prefHeight="26.0" prefWidth="171.0" promptText="%eye" />
    <ComboBox fx:id="nationality" layoutX="327.0" layoutY="250.0" prefHeight="26.0" prefWidth="171.0" promptText="%country" />
    <Button fx:id="add" layoutX="211.0" layoutY="501.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="156.0" text="%create" />
-   <TextField fx:id="personBirthday" layoutX="338.0" layoutY="333.0" promptText="%date" />
+   <DatePicker fx:id="personBirthday" layoutX="327.0" layoutY="344.0" />
    <Label layoutX="379.0" layoutY="172.0" text="%owner">
       <font>
          <Font name="System Italic" size="16.0" />

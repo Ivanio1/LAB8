@@ -222,7 +222,7 @@ public class App_main_Controller {
             getClientObjects(arrayList);
             //}
         } catch (Exception e) {
-          //Flag  e.printStackTrace();
+            //Flag  e.printStackTrace();
             System.out.println("Server disabled");
             System.exit(0);
         }
@@ -342,29 +342,37 @@ public class App_main_Controller {
         EXIT.setOnAction(event ->
 
         {
+            Network network = null;
+            try {
+                network = new Network(RunClient.ip_adress, RunClient.port);
+                User user = new User(RunClient.login, RunClient.pass);
+                Message message = new Message("exit", user);
+                network.write(message);
+                String outServer = network.read().toString();
+            } catch (IOException | ClassNotFoundException e) {
+               // e.printStackTrace();
+            }
             System.exit(0);
         });
         objectTable.setOnMouseClicked(event ->
         { //Двойной клик по объекту в таблице
             try {
-                FLAG=true;
+                FLAG = true;
                 if (event.getClickCount() == 2) {
                     if (objectTable.getSelectionModel().getSelectedItem().getOwner().equals(login)) {
                         RunClient.labworkTable = objectTable.getSelectionModel().getSelectedItem();
-                        for (LabWork e : arrayList) {
-                            if (e.getOwner().equals(login)) {
-                                RunClient.Canvas_id = e.getId();
-                                RunClient.Canvas_x = e.getCoordinates().getX();
-                                RunClient.Canvas_y = e.getCoordinates().getY();
-                                RunClient.Canvas_name = e.getName();
-                                RunClient.Canvas_pername = e.getAuthor().getName();
-                                RunClient.Canvas_date = e.getAuthor().getBirthday();
-                                RunClient.Canvas_point = e.getMinimalPoint();
-                                RunClient.Canvas_diff = String.valueOf(e.getDifficulty());
-                                RunClient.Canvas_color = String.valueOf(e.getAuthor().getEyeColor());
-                                RunClient.Canvas_country = String.valueOf(e.getAuthor().getNationality());
-                            }
-                        }
+
+                                RunClient.Canvas_id =  RunClient.labworkTable.getId();
+                                RunClient.Canvas_x =  RunClient.labworkTable.getX();
+                                RunClient.Canvas_y =  RunClient.labworkTable.getY();
+                                RunClient.Canvas_name =  RunClient.labworkTable.getName();
+                                RunClient.Canvas_pername =  RunClient.labworkTable.getPersonName();
+                                RunClient.Canvas_date =  RunClient.labworkTable.getPersonBirth();
+                                RunClient.Canvas_point =  RunClient.labworkTable.getMinimalPoint();
+                                RunClient.Canvas_diff = String.valueOf( RunClient.labworkTable.getDifficulty());
+                                RunClient.Canvas_color = String.valueOf( RunClient.labworkTable.getEyeColor());
+                                RunClient.Canvas_country = String.valueOf( RunClient.labworkTable.getCountry());
+
                         FXMLLoader loader = new FXMLLoader();
                         loader.setLocation(getClass().getResource("DoubleClick.fxml"));
                         loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -393,15 +401,18 @@ public class App_main_Controller {
         HELP.setOnAction(event ->
 
         {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-
-            alert.setHeaderText("Error");
-            alert.setContentText(resources.getString("help"));
-            alert.showAndWait().ifPresent(rs -> {
+            Alert alert1 = new Alert(Alert.AlertType.INFORMATION);
+            TextArea area = new TextArea(resources.getString("help"));
+            area.setWrapText(true);
+            area.setEditable(false);
+            alert1.getDialogPane().setContent(area);
+            alert1.setResizable(true);
+            alert1.showAndWait().ifPresent(rs -> {
             });
         });
         Add_button.setOnAction(event ->
-        {FLAG=false;
+        {
+            FLAG = false;
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("addScene.fxml"));
             loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -421,7 +432,8 @@ public class App_main_Controller {
 
         add_if_max.setOnAction(event ->
 
-        {FLAG=false;
+        {
+            FLAG = false;
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("add_if_maxScene.fxml"));
             loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -438,7 +450,8 @@ public class App_main_Controller {
         });
         SCRIPT.setOnAction(event ->
 
-        {FLAG=false;
+        {
+            FLAG = false;
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("ScriptScene.fxml"));
             loader.setResources(ResourceBundle.getBundle(RunClient.BUNDLES_FOLDER, RunClient.locale));
@@ -454,7 +467,8 @@ public class App_main_Controller {
             stage.showAndWait();
         });
         Update_id.setOnAction(event ->
-        {FLAG=false;
+        {
+            FLAG = false;
             for (LabWork e : arrayList) {
                 if (e.getOwner().equals(login)) {
                     RunClient.Canvas_id = e.getId();
@@ -573,7 +587,7 @@ public class App_main_Controller {
                 Message message = new Message("remove_first", user);
                 network.write(message);
                 String outServer = network.read().toString();
-                FLAG=false;
+                FLAG = false;
                 setINFO();
                 if (outServer.equals("[EMPTY]")) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -634,7 +648,7 @@ public class App_main_Controller {
                     network.write(message);
                     String outServer = network.read().toString();
                     setINFO();
-                    FLAG=false;
+                    FLAG = false;
                     if (outServer.equals("[EMPTY]")) {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setHeaderText("Error");
@@ -796,8 +810,8 @@ public class App_main_Controller {
         FilteredList<LabworkTable> filteredList = new FilteredList<>(cities, b -> true);
         LT.textProperty().addListener((observableValue, old, newval) -> {
             filteredList.setPredicate(city -> {
-                FLAG=true;
-                if (newval.isEmpty() || newval.isBlank() || newval == null) {
+                FLAG = true;
+                if (newval.isEmpty() || newval == null) {
                     return true;
                 }
                 String search = newval.toLowerCase();

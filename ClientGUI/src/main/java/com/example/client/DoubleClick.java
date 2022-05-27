@@ -42,6 +42,7 @@ public class DoubleClick {
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
+            UPDATE.getScene().getWindow().hide();
         });
         DELETE.setOnAction(event -> {
             Network network = null;
